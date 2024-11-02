@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        h1 {
+            font-size: 2.5em;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .sidebar h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #3498db; /* Sidebar heading color */
+        }
+        .container {
+            margin-left: 270px; /* Space for sidebar */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: calc(100% - 270px);
+        }
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            margin-top: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .link-box {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .link-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .link-title {
+            font-size: 1.5em;
+            margin: 10px 0 0;
+            padding: 10px;
+            background-color: #3498db;
+            color: #fff;
+            border-radius: 5px;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .link-title:hover {
+            background-color: #2980b9;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="url"],
+        .form-group select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #3498db; /* Blue border */
+            border-radius: 5px;
+            margin-top: 5px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 1em; /* Font size */
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="url"]:focus,
+        .form-group select:focus {
+            border-color: #2980b9; /* Darker blue on focus */
+            box-shadow: 0 0 5px rgba(41, 128, 185, 0.5); /* Add glow effect on focus */
+            outline: none; /* Remove outline */
+        }
+
+        .form-group select {
+            appearance: none; /* Remove default arrow */
+            background-image: url('data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath fill="%233498db" d="M7 10l5 5 5-5H7z"/%3E%3C/svg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 10px center; /* Position arrow */
+            background-size: 12px; /* Size of arrow */
+            padding-right: 30px; /* Space for arrow */
+        }
+
+        .form-group select:focus {
+            border-color: #2980b9; /* Darker blue on focus */
+            box-shadow: 0 0 5px rgba(41, 128, 185, 0.5); /* Add glow effect on focus */
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%; /* Full width for buttons */
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .delete-button {
+            background-color: #e74c3c; /* Red background for delete button */
+            padding: 5px 10px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px; /* Spacing above the delete button */
+            display: none; /* Initially hidden */
+            width: 100%; /* Full width for delete button */
+        }
+        .delete-button:hover {
+            background-color: #c0392b; /* Darker red on hover */
+        }
+        /* Styles for the toggle switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .toggle-label {
+            margin-right: 10px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #3498db;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        /* Set fixed icon size */
+        .link-box i {
+            font-size: 2.5em; /* Set the icon size here */
+            margin-bottom: 10px; /* Add spacing between icon and title */
+            color: #3498db; /* Icon color */
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Options</h2>
+        <hr>
+        <h3>Add Link</h3>
+        <div class="form-group">
+            <label for="linkTitle">Title:</label>
+            <input type="text" id="linkTitle" placeholder="Enter link title">
+        </div>
+        <div class="form-group">
+            <label for="linkUrl">URL:</label>
+            <input type="url" id="linkUrl" placeholder="Enter link URL">
+        </div>
+        <div class="form-group">
+            <label for="linkIcon">Select Icon:</label>
+            <select id="linkIcon">
+                <option value="fas fa-link">Link</option>
+                <option value="fas fa-book">Book</option>
+                <option value="fas fa-user">User</option>
+                <option value="fas fa-envelope">Envelope</option>
+                <option value="fas fa-folder">Folder</option>
+                <option value="fas fa-laptop-code">Laptop</option>
+                <option value="fas fa-school">School</option>
+                <option value="fas fa-cog">Cog</option>
+                <option value="fas fa-home">Home</option>
+                <option value="fas fa-file-alt">File</option>
+                <option value="fas fa-chart-line">Chart</option>
+            </select>
+        </div>
+        <button id="addLinkButton">Add Link</button>
+        <div class="toggle-container">
+            <label class="toggle-label">Show Delete Buttons</label>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggleDelete">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Link Dashboard</h1>
+        <div class="link-grid" id="linkGrid"></div>
+    </div>
+
+    <script>
+        const addLinkButton = document.getElementById('addLinkButton');
+        const linkContainer = document.getElementById('linkGrid');
+        const toggleDelete = document.getElementById('toggleDelete');
+
+        // Function to save links to localStorage
+        function saveLinks() {
+            const links = [];
+            const linkBoxes = document.querySelectorAll('.link-box');
+            linkBoxes.forEach(linkBox => {
+                const title = linkBox.querySelector('.link-title').textContent;
+                const url = linkBox.querySelector('.link-title').href;
+                const icon = linkBox.querySelector('i').className;
+                links.push({ title, url, icon });
+            });
+            localStorage.setItem('links', JSON.stringify(links));
+        }
+
+        // Function to load links from localStorage
+        function loadLinks() {
+            const links = JSON.parse(localStorage.getItem('links'));
+            if (links) {
+                links.forEach(link => {
+                    addLink(link.title, link.url, link.icon);
+                });
+            }
+        }
+
+        // Function to add a link box
+        function addLink(linkTitle, linkUrl, linkIcon) {
+            const linkBox = document.createElement('div');
+            linkBox.classList.add('link-box');
+
+            const icon = document.createElement('i');
+            icon.className = linkIcon;
+
+            const link = document.createElement('a');
+            link.href = linkUrl;
+            link.className = 'link-title';
+            link.textContent = linkTitle;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.textContent = 'Delete';
+            deleteButton.addEventListener('click', () => {
+                linkBox.remove();
+                saveLinks(); // Update storage after deletion
+            });
+
+            linkBox.appendChild(icon);
+            linkBox.appendChild(link);
+            linkBox.appendChild(deleteButton);
+            linkContainer.appendChild(linkBox);
+
+            saveLinks(); // Save to localStorage when a link is added
+        }
+
+        // Add event listener for the add link button
+        addLinkButton.addEventListener('click', () => {
+            const linkTitle = document.getElementById('linkTitle').value;
+            const linkUrl = document.getElementById('linkUrl').value;
+            const linkIcon = document.getElementById('linkIcon').value;
+
+            if (linkTitle && linkUrl) {
+                addLink(linkTitle, linkUrl, linkIcon);
+                document.getElementById('linkTitle').value = '';
+                document.getElementById('linkUrl').value = '';
+            }
+        });
+
+        // Toggle delete button visibility
+        toggleDelete.addEventListener('change', () => {
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.style.display = toggleDelete.checked ? 'block' : 'none';
+            });
+        });
+
+        // Load links from localStorage when the page loads
+        document.addEventListener('DOMContentLoaded', loadLinks);
+    </script>
+</body>
+</html>
